@@ -35,6 +35,15 @@ app.get('/', function(req, res){
   });
 });
 
+app.get('/history', function(req, res){
+  console.log('add history');
+  var key = req.query.key;
+  var reparams = {
+    id: 'vS6wzjpCvec'
+  };
+  res.send(key);
+});
+
 var port = process.env.PORT || 48388;
 app.listen(port);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

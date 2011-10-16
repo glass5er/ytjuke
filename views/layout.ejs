@@ -1,88 +1,268 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= title %></title>
-    
-    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+<head>
+<title><%= title %></title>
 
-    <!-- Le styles -->
-    <link href="/stylesheets/bootstrap-1.2.0.min.css" rel="stylesheet">
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  
-    <!-- JavaScript -->    
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="http://www.google.com/jsapi"></script>
-    <script>
-      google.load("swfobject", "2.1");
-      google.load("jquery", "1");
-    </script>
-    
-    <script type="text/javascript">
-    <!--
-    	var ytplayer = undefined;
-    	var video_id = "<%= video_id %>";
+<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
 
-    	
-		// プレーヤの準備が完了したときのコールバック
-		function onYouTubePlayerReady(playerId) {
-			console.log("onYouTubePlayerReady");
-			if(playerId == "ytplayer1"){	
-				ytplayer = document.getElementById("myytplayer1");  //サンプル動画
-				ytplayer.addEventListener("onStateChange", "onytplayerStateChange");
-				
-				video_id = "<%= video_id %>";
-				console.log("video_id = " + video_id);
-				ytplayer.loadVideoById(video_id);
-			}
-		}
-		// 再生
-		function play() {
-		  if (ytplayer) {
-			 ytplayer.playVideo();
-			 ytplayer.setVolume(50);
-		  }
-		}
-		
-		// ミュート
-		function mute() {
-			if (ytplayer) {
-				if (ytplayer.isMuted()) {
-					ytplayer.unMute();
-					$("#mute").html("Sound OFF");
-				} else {
-					ytplayer.mute();
-					$("#mute").html("Sound ON");
-				}
-			}
-		}
-		
-		// 再生状態が変化したときのコールバック
-		function onytplayerStateChange(newState) {
-			console.log("Player's new state: " + newState);
-			if (newState == 0) {
-				var params = {
-					video_id: video_id,
-				};
-				$.get("/video", params, function(data){
-					console.log(data);
-					if (ytplayer) {
-						video_id = data.video_id;
-						ytplayer.loadVideoById(video_id);
-					}
-				});
-			}
-		}
-		
-		// socket.ioでサーバーと接続
-		var socket = io.connect("/");
-	//-->
-	</script>
-    
-  </head>
-  <body>
-    <%- body %>
-  </body>
+<!-- Le styles -->
+<link href="/stylesheets/bootstrap-1.2.0.min.css" rel="stylesheet">
+<link rel='stylesheet' href='/stylesheets/style.css' />
+
+<!-- JavaScript -->    
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://www.google.com/jsapi"></script>
+<script>
+google.load("swfobject", "2.1");
+google.load("jquery", "1");
+</script>
+
+<script type="text/javascript">
+<!--
+var ytplayer = undefined;
+var video_id = "<%= video_id %>";
+
+
+// プレーヤの準備が完了したときのコールバック
+function onYouTubePlayerReady(playerId) {
+  console.log("onYouTubePlayerReady");
+  if(playerId == "ytplayer1"){  
+    ytplayer = document.getElementById("myytplayer1");  //サンプル動画
+    ytplayer.addEventListener("onStateChange", "onytplayerStateChange");
+
+    video_id = "<%= video_id %>";
+    console.log("video_id = " + video_id);
+    ytplayer.loadVideoById(video_id);
+  }
+}
+// 再生
+function play() {
+  if (ytplayer) {
+    ytplayer.playVideo();
+    ytplayer.setVolume(50);
+  }
+}
+
+// ミュート
+function mute() {
+  if (ytplayer) {
+    if (ytplayer.isMuted()) {
+      ytplayer.unMute();
+      $("#mute").html("Sound OFF");
+    } else {
+      ytplayer.mute();
+      $("#mute").html("Sound ON");
+    }
+  }
+}
+
+// 再生状態が変化したときのコールバック
+function onytplayerStateChange(newState) {
+  console.log("Player's new state: " + newState);
+  if (newState == 0) {
+    var params = {
+video_id: video_id,
+    };
+    $.get("/video", params, function(data){
+        console.log(data);
+        if (ytplayer) {
+        video_id = data.video_id;
+        ytplayer.loadVideoById(video_id);
+        }
+        });
+  }
+}
+
+
+var searchCond = {}; // 検索条件
+var VIEW_COUNT = 9;  // 画面に表示する件数
+
+// --- 初期化 ---
+$(function(){
+    // --- イベントハンドラ ---
+    // 検索
+    $("#frmSearch").submit(function(){
+      searchNew({"keyword": $("#keyword").val()});
+      $("#keyword").select();
+      return false;
+      });
+
+    // 並び替え
+    $("#sort > a").click(function(){
+      searchHistory({"orderby": this.id, "page":1});
+      });
+
+    // 前へ
+    $("#back").click(function(){
+      if (searchCond.page <= 1) return;
+      searchHistory({"page": searchCond.page-1});
+      });
+
+    // 次へ
+    $("#next").click(function(){
+        if (searchCond.page*VIEW_COUNT+1 > searchCond.total) return;
+        searchHistory({"page": searchCond.page+1});
+        });
+
+    // クリア
+    $("#clear").click(function(){
+        $("#history > ul").empty();
+        $("#videos").empty();
+        $("#result").empty();
+        });
+
+    // --- 初期処理 ---
+    // 検索テキストボックスをフォーカス
+    $("#keyword").focus();
+});
+
+// --- 新規検索 ---
+function searchNew(cond) {
+  search({
+      "keyword": cond.keyword,
+      "page": 1,
+      "orderby": "relevance",
+      "fromHistory": false
+      });
+}
+
+// --- 履歴検索 ---
+function searchHistory(cond) {
+  if ($("#history li").size() == 0) return;
+  search($.extend({}, searchCond, cond, {"fromHistory": true}));
+}
+
+// --- 検索 ---
+function search(cond) {
+  // 検索条件の検査
+  if (cond == null) return;
+  if (cond.keyword == null || cond.keyword.length == 0) {
+    alert("検索キーワードを入力してください。");
+    return;
+  }
+
+  // 検索取得開始インデックス
+  var index = (cond.page-1)*VIEW_COUNT+1;
+
+  // 検索条件の保存
+  $.extend(searchCond, cond);
+
+  // サムネイル表示を初期化
+  $("#videos").text("Loading...");
+
+  // ajax通信定義
+  $.ajax({
+dataType: "jsonp",
+data: {
+"vq": cond.keyword,
+"orderby": cond.orderby,
+"start-index": index,
+"max-results": VIEW_COUNT,
+"alt":"json-in-script"
+},
+cache: true,
+url: "http://gdata.youtube.com/feeds/api/videos",
+success: function (data) {
+// サムネイル表示をクリア
+$("#videos").empty();
+
+// 検索結果件数を取得・表示
+searchCond.total = parseInt(data.feed.openSearch$totalResults.$t,10);
+showTotal(index, searchCond.total);
+
+// 検索結果が0件
+if (searchCond.total == 0) {
+  alert("検索キーワードにマッチするビデオはありませんでした。");
+  return;
+}
+
+// エントリを参照してサムネイルを生成
+$.each(data.feed.entry, function(i,item){
+    var group = item.media$group;
+
+    $("<div/>").addClass("thumbnail")
+    .append($("<img/>").attr("src", group.media$thumbnail[0].url)).append("<br/>")
+    .append(item.title.$t).append("<br/>")
+    .append($("<span/>").addClass("info").text("再生回数：" + ((item.yt$statistics == null) ? "0" : item.yt$statistics.viewCount)))
+    .click(function(){window.open(group.media$player[0].url, null)})
+    .appendTo("#videos");
+    });
+
+// 検索履歴に追加
+if (!cond.fromHistory) {
+  addHistory($("#videos img:first").clone(), cond.keyword);
+  console.log(cond.keyword);
+  sendHistory(cond.keyword);
+}
+}
+});
+}
+
+// --- 検索結果件数表示 ---
+function showTotal(index, total) {
+  $("#result").text(
+      ((total == 0) ? 0 : index)
+      + " - "
+      + (index+VIEW_COUNT > total ? total : index+VIEW_COUNT-1)
+      + " / "
+      + total
+      + "件"
+      );
+}
+
+// --- 検索履歴追加 ---
+function addHistory(img, keyword) {
+  // (1) 履歴に検索キーワードが存在するか
+  var exists = $.grep($("#history li"), function(item, index){
+      return ($(item).children(".key").text() == keyword);
+      });
+
+  if (exists.length == 0) {    // (2) 存在しない
+    $("<li/>")
+      //.append(img).append("<br/>")
+      .append($("<span/>").addClass("key").append(keyword))
+      .append(
+          $("<a/>").addClass("del").append("[x]")
+          .click(function(){
+            $(this).parent().remove();
+            if (searchCond.keyword == keyword) {
+            $("#videos").empty();
+            $("#result").empty();
+            }
+            })
+          )
+      .click(function(){searchHistory({"keyword":keyword, "page":1, "orderby":"relevance"});})
+      .prependTo("#history > ul");
+  } else {    // (3) 存在する
+    $(exists)
+      .prependTo($(exists).parent())
+      .children("img").attr("src", img.attr("src"));
+  }
+
+}
+
+function sendHistory(keyword) {
+  var sdparams = {
+    key: keyword 
+  };
+  $.get('/history', sdparams, function(data){
+    console.log("response data = " + data);
+    ytplayer.loadVideoById(data.id);
+    ytplayer.playVideo();
+  });
+}
+
+
+// socket.ioでサーバーと接続
+var socket = io.connect("/");
+//-->
+</script>
+
+</head>
+<body>
+<%- body %>
+</body>
 </html>
