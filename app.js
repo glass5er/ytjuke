@@ -7,6 +7,9 @@ var express = require('express');
 
 var app = module.exports = express.createServer();
 
+var histories = new Array();
+var max_histories = 10;
+
 // Configuration
 
 app.configure(function(){
@@ -38,9 +41,29 @@ app.get('/', function(req, res){
 app.get('/history', function(req, res){
   console.log('add history');
   var key = req.query.key;
-  var reparams = {
-    id: 'vS6wzjpCvec'
+  var isin = 0;
+  for(var i=0; i<histories.length; i++) {
+    if(histories[i] == key) isin = 1;
   };
+  if(isin == 0) histories.unshift(key);
+  if(histories.length > max_histories) histories.pop();
+  var reparams = {
+    id: 'vS6wzjpCvec',
+    hists: histories
+  };
+  console.log('length = ' + histories.length);
+  res.send(reparams);
+});
+
+app.get('/clear', function(req, res){
+  console.log('clear history');
+  for(var i=0; i<histories.length; i++) {
+    histories.pop();
+  };
+  var reparams = {
+    id: 'vS6wzjpCvec',
+  };
+  console.log('length = ' + histories.length);
   res.send(reparams);
 });
 

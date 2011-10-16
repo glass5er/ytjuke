@@ -109,6 +109,7 @@ $(function(){
 
     // クリア
     $("#clear").click(function(){
+        clearHistory();
         $("#history > ul").empty();
         $("#videos").empty();
         $("#result").empty();
@@ -175,14 +176,14 @@ showTotal(index, searchCond.total);
 
 // 検索結果が0件
 if (searchCond.total == 0) {
-  alert("検索キーワードにマッチするビデオはありませんでした。");
+  alert("invalid keyword : no videos matched.");
   return;
 }
 
 // エントリを参照してサムネイルを生成
 $.each(data.feed.entry, function(i,item){
     var group = item.media$group;
-
+/*
     $("<div/>").addClass("thumbnail")
     .append($("<img/>").attr("src", group.media$thumbnail[0].url)).append("<br/>")
     .append(item.title.$t).append("<br/>")
@@ -190,10 +191,26 @@ $.each(data.feed.entry, function(i,item){
     .click(function(){window.open(group.media$player[0].url, null)})
     .appendTo("#videos");
     });
+*/
+    var cur_id = item.id.$t.slice(-11);
+    $("<div/>")
+    .append(item.title.$t)
+    .append($("<span/>").addClass("info").text("再生回数：" + ((item.yt$statistics == null) ? "0" : item.yt$statistics.viewCount)))
+    .click(function(){
+      video_id = cur_id;
+      ytplayer.loadVideoById(video_id);
+      play();
+    })
+    .appendTo("#videos");
+    });
+
+    //  play with keyword  //
+    video_id = data.feed.entry[1].id.$t.slice(-11);
+    ytplayer.loadVideoById(video_id);
+    play();
 
 // 検索履歴に追加
 if (!cond.fromHistory) {
-  addHistory($("#videos img:first").clone(), cond.keyword);
   console.log(cond.keyword);
   sendHistory(cond.keyword);
 }
@@ -214,48 +231,46 @@ function showTotal(index, total) {
 }
 
 // --- 検索履歴追加 ---
-function addHistory(img, keyword) {
-  // (1) 履歴に検索キーワードが存在するか
-  var exists = $.grep($("#history li"), function(item, index){
-      return ($(item).children(".key").text() == keyword);
-      });
-
-  if (exists.length == 0) {    // (2) 存在しない
-    $("<li/>")
-      //.append(img).append("<br/>")
-      .append($("<span/>").addClass("key").append(keyword))
-      .append(
-          $("<a/>").addClass("del").append("[x]")
-          .click(function(){
-            $(this).parent().remove();
-            if (searchCond.keyword == keyword) {
-            $("#videos").empty();
-            $("#result").empty();
-            }
-            })
-          )
-      .click(function(){searchHistory({"keyword":keyword, "page":1, "orderby":"relevance"});})
-      .prependTo("#history > ul");
-  } else {    // (3) 存在する
-    $(exists)
-      .prependTo($(exists).parent())
-      .children("img").attr("src", img.attr("src"));
-  }
-
-}
-
 function sendHistory(keyword) {
   var sdparams = {
     key: keyword 
   };
   $.get('/history', sdparams, function(data){
     console.log("response data = " + data);
-    ytplayer.loadVideoById(data.id);
-    ytplayer.playVideo();
+    var newkey = data.hists[0];
+    $("#video_title").html(newkey);
+    $("#history > ul").empty();
+
+    var len = data.hists.length;
+    for(var i=0; i<len; i++) {
+    $("<li/>")
+    //.append(img).append("<br/>")
+    .append($("<span/>").addClass("key").append(data.hists[i]))
+    .append(
+      $("<a/>").addClass("del").append("[x]")
+      .click(function(){
+        $(this).parent().remove();
+        if (searchCond.keyword == data.hists[i]) {
+        $("#videos").empty();
+        $("#result").empty();
+        }
+        })
+      )
+    .click(function(){searchHistory({"keyword":data.hists[i], "page":1, "orderby":"relevance"});})
+    .prependTo("#history > ul");
+    }
+
   });
 }
 
-
+function clearHistory() {
+  var sdparams = {
+    noitem: 'nothing'
+  };
+  $.get('/clear', sdparams, function(data){
+    $("#history > ul").empty();
+  });
+}
 // socket.ioでサーバーと接続
 var socket = io.connect("/");
 //-->
