@@ -41,7 +41,7 @@ app.get('/history', function(req, res){
   var reparams = {
     id: 'vS6wzjpCvec'
   };
-  res.send(key);
+  res.send(reparams);
 });
 
 var port = process.env.PORT || 48388;
