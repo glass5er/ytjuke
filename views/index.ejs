@@ -3,11 +3,6 @@
     <div class="fill">
       <div class="container">
         <h3><a href="#"><%= title %></a></h3>
-        <ul class="nav">
-          <li class="active"><a href="#">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#about">Contact</a></li>
-        </ul>
         <ul class="nav secondary-nav">
           <li><a href="javascript:mute();"><span id="mute">Sound OFF</span></a></li>
         </ul>
@@ -18,8 +13,7 @@
 
   <div class="container">
     <div class="hero-unit">
-      <h1><span id="video_title">this_title</span></h1>
-      <br>
+      <h2><span id="video_title">no title</span></h2>
       <form id="frmSearch">
         <input type="text" id="keyword" size="35">
         <input type="submit" value="set keyword">
@@ -30,47 +24,10 @@
     </div>
   </div>
 
-  <div class="container">
-    <section id="about">
-    <div class="page-header">
-      <h3>このサイトについて <small>About <%= title %></small></h3>
-    </div>
-    <div class="row">
-      <div class="span16 columns">
-        <p>test app
-        </p>
-      </div>
-    </div>
-    <section>
-  </div>
-
-  <div class="container">
-    <section id="contact">
-    <div class="page-header">
-      <h3>連絡先 <small>Conatct</small></h3>
-    </div>
-    <div class="row">
-      <div class="span16 columns">
-        @ glass5er 2011
-      </div>
-    </div>
-    <footer>
-    </footer>
-    </section>
-  </div>	
-    
   <div id="view">
     <!-- ヘッダ -->
     <div class="header">
-    <div id="sort" class="submenu">
-    並び替え：
-    <a id="relevance">関連度</a>｜
-    <a id="updated">追加日</a>｜
-    <a id="viewCount">再生回数</a>｜
-    <a id="rating">評価</a>
-    </div>
-    <div class="caption">ビデオ</div>
-    </div>
+    <h3 class="caption">Search Result:</h3>
 
     <!-- サムネイル -->
     <div id="videos"></div>
@@ -79,8 +36,8 @@
     <div id="footer">
     <div id="result"></div>
     <div id="navi">
-    <a id="back">前へ</a>　
-    <a id="next">次へ</a>
+    <a id="back">prev</a>　
+    <a id="next">next</a>
     </div>
     </div>
   </div>
@@ -89,16 +46,13 @@
 <div id="history">
 <!-- ヘッダ -->
 <div class="header">
-<div class="submenu"><a id="clear">クリア</a></div>
-
-<div class="caption">検索履歴</div>
+<h3 class="caption">History:</h3>
+<div class="submenu"><a id="clear">clear history</a></div>
 </div>
 
 <!-- 履歴リスト -->
 <ul></ul>
 </div>
-
-
 
 
 <!-- Player -->
@@ -107,9 +61,9 @@
 var params = { allowScriptAccess: "always" };
 var atts = { id: "myytplayer1" };
 var cur_id = "<%= video_id %>";
-var url = "http://www.youtube.com/v/" + cur_id + "?enablejsapi=1&version=3&playerapiid=ytplayer1&rel=0";
+var url = "http://www.youtube.com/v/" + cur_id + "?enablejsapi=1&playerapiid=ytplayer1&rel=0";
 //var url = "http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=ytplayer1&rel=0";
-swfobject.embedSWF(url, "ytapiplayer1", "800", "25", "8", null, null, params, atts);
+swfobject.embedSWF(url, "ytapiplayer1", "480", "25", "8", null, null, params, atts);
 //-->
 </script>
 

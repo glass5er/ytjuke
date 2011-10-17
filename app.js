@@ -33,8 +33,8 @@ app.configure('production', function(){
 
 app.get('/', function(req, res){
   res.render('index', {
-    title: 'Express',
-		video_id: 'eM4wFhp7BRg'
+    title: 'YouTube Auto Playlist',
+		video_id: 'RMfApWLG-OQ'
   });
 });
 
@@ -42,13 +42,14 @@ app.get('/history', function(req, res){
   console.log('add history');
   var key = req.query.key;
   var isin = 0;
-  for(var i=0; i<histories.length; i++) {
-    if(histories[i] == key) isin = 1;
-  };
-  if(isin == 0) histories.unshift(key);
-  if(histories.length > max_histories) histories.pop();
+  if(key.length > 0){
+    for(var i=0; i<histories.length; i++) {
+      if(histories[i] == key) isin = 1;
+    };
+  }else isin = 1;
+  if(isin == 0) histories.push(key);
+  if(histories.length > max_histories) histories.shift();
   var reparams = {
-    id: 'vS6wzjpCvec',
     hists: histories
   };
   console.log('length = ' + histories.length);
@@ -60,11 +61,8 @@ app.get('/clear', function(req, res){
   for(var i=0; i<histories.length; i++) {
     histories.pop();
   };
-  var reparams = {
-    id: 'vS6wzjpCvec',
-  };
   console.log('length = ' + histories.length);
-  res.send(reparams);
+  res.send();
 });
 
 var port = process.env.PORT || 48388;
