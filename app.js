@@ -10,6 +10,20 @@ var app = module.exports = express.createServer();
 var histories = new Array();
 var max_histories = 10;
 
+// postgresql
+var pg = require('pg');
+var dbName = "ytplaydb";
+var tableName = "ytplaytable";
+
+var connectionString = "tcp://pgsqladmin:sqladmin@127.0.0.1:5432/" + dbName;
+pg.connect(connectionString, function(err, client) {
+  client.query("SELECT * from " + tableName, function(err, result) {
+    console.log("Row count: " + result.rows.length);  // 1
+    console.log("column_name: " + result.rows[0].column_name);
+  });
+});
+
+
 // Configuration
 
 app.configure(function(){
