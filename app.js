@@ -52,7 +52,6 @@ app.get('/', function(req, res){
 app.get('/createTable', function(req, res){
   var queryTableName = req.query.key;
   var allTables = new Array();
-  allTables.push("testElem");
   pg.connect(connectionString, function(err, client) {
     //  create new table  //
     client.query("create table if not exists ytp_" + queryTableName + "(yt_key char(7) PRIMARY KEY, title text)", function(err, result) {
@@ -63,19 +62,23 @@ app.get('/createTable', function(req, res){
       if(err) { console.log(err); }
       else {
         for(var i in result.rows) {
-          var str = result.rows[i].tablename;
-          console.log("get: " + result.rows[i].tablename);
-          console.log(str);
-          allTables.push("" + result.rows[i].tablename);
-          console.log("read : " + allTables[i]);
+          var str = "" + result.rows[i].tablename;
+          console.log("get: " + str);
+          allTables.push(str.replace("ytp_",""));
         }
       }
+      done();
     });
   });
-  var resParams = {
-    playlists: allTables
+
+  var resParams;
+  var done = function() {
+    resParams = {
+      playlists: allTables
+    };
+    console.log("send parameters");
+    res.send(resParams);
   };
-  res.send(resParams);
 });
 
 app.get('/dropTable', function(req, res){

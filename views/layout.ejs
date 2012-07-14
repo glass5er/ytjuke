@@ -275,9 +275,6 @@ function createPlaylist()
   var sndParams = {
     key: keyword
   };
-  $("<div/>").addClass("result")
-  .append("strinnngg")
-  .appendTo("#playlists");
   $.get('/createTable', sndParams, function(data){
     for(var i in data.playlists) {
       $("<div/>").addClass("result")
