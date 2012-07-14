@@ -16,8 +16,8 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://www.google.com/jsapi"></script>
 <script>
-google.load("swfobject", "2.1");
-google.load("jquery", "1");
+  google.load("swfobject", "2.1");
+  google.load("jquery", "1");
 </script>
 
 <script type="text/javascript">
@@ -109,6 +109,10 @@ $(function(){
         searchHistory({"page": searchCond.page+1});
         });
 
+    $("#createList").click(function(){
+      createPlaylist();
+    });
+
     // クリア
     $("#clear").click(function(){
         clearHistory();
@@ -161,61 +165,60 @@ function search(cond) {
 
   // ajax通信定義
   $.ajax({
-dataType: "jsonp",
-data: {
-"vq": cond.keyword,
-"orderby": cond.orderby,
-"start-index": index,
-"max-results": VIEW_COUNT,
-"alt":"json-in-script"
-},
-cache: true,
-url: "http://gdata.youtube.com/feeds/api/videos",
-success: function (data) {
-// サムネイル表示をクリア
-$("#videos").empty();
+    dataType: "jsonp",
+    data: {
+      "vq": cond.keyword,
+      "orderby": cond.orderby,
+      "start-index": index,
+      "max-results": VIEW_COUNT,
+      "alt":"json-in-script"
+    },
+    cache: true,
+    url: "http://gdata.youtube.com/feeds/api/videos",
+    success: function (data) {
+      // サムネイル表示をクリア
+      $("#videos").empty();
 
-// 検索結果件数を取得・表示
-searchCond.total = parseInt(data.feed.openSearch$totalResults.$t,10);
-showTotal(index, searchCond.total);
+      // 検索結果件数を取得・表示
+      searchCond.total = parseInt(data.feed.openSearch$totalResults.$t,10);
+      showTotal(index, searchCond.total);
 
-// 検索結果が0件
-if (searchCond.total == 0) {
-  alert("invalid keyword : no videos matched.");
-  return;
-}
+      // 検索結果が0件
+      if (searchCond.total == 0) {
+        alert("invalid keyword : no videos matched.");
+        return;
+      }
 
-  // エントリを参照してサムネイルを生成
-  $.each(data.feed.entry, function(i,item){
-    var group = item.media$group;
-    var cur_id = item.id.$t.slice(-11);
-    $("<div/>").addClass("result")
-    .append(item.title.$t)
-    .append($("<span/>").addClass("info").text(" ViewCount:" + ((item.yt$statistics == null) ? "0" : item.yt$statistics.viewCount)))
-    .click(function(){
-      list_index = i;
-      video_id = idlist[i];
+      // エントリを参照してサムネイルを生成
+      $.each(data.feed.entry, function(i,item){
+        var group = item.media$group;
+        var cur_id = item.id.$t.slice(-11);
+        $("<div/>").addClass("result")
+        .append(item.title.$t)
+        .append($("<span/>").addClass("info").text(" ViewCount:" + ((item.yt$statistics == null) ? "0" : item.yt$statistics.viewCount)))
+        .click(function(){
+          list_index = i;
+          video_id = idlist[i];
+          ytplayer.loadVideoById(video_id);
+          play();
+        })
+        .appendTo("#videos");
+        idlist.push(item.id.$t.slice(-11));
+      });
+
+      //  play with keyword  //
+      list_index = 0;
+      video_id = idlist[list_index];
       ytplayer.loadVideoById(video_id);
       play();
-    })
-    .appendTo("#videos");
-    idlist.push(item.id.$t.slice(-11));
+
+      // 検索履歴に追加
+      if (!cond.fromHistory) {
+        console.log(cond.keyword);
+        sendHistory(cond.keyword);
+      }
+    }
   });
-
-    //  play with keyword  //
-    list_index = 0;
-    video_id = idlist[list_index];
-    ytplayer.loadVideoById(video_id);
-    play();
-
-  // 検索履歴に追加
-  if (!cond.fromHistory) {
-    console.log(cond.keyword);
-    sendHistory(cond.keyword);
-  }
-}
-
-});
 }
 
 // --- 検索結果件数表示 ---
@@ -232,17 +235,16 @@ function showTotal(index, total) {
 
 // --- 検索履歴追加 ---
 function sendHistory(keyword) {
-  var sdparams = {
-    key: keyword 
+  var sndParams = {
+    key: keyword
   };
-  $.get('/history', sdparams, function(data){
+  $.get('/history', sndParams, function(data){
     console.log("response data = " + data);
     //var newkey = data.hists[0];
     $("#video_title").html(keyword);
     $("#history > ul").empty();
 
-    var len = data.hists.length;
-    for(var i=0; i<len; i++) {
+    for(var i in data.hists) {
     $("<li/>")
     //.append(img).append("<br/>")
     .append($("<span/>").addClass("key").append(data.hists[i]))
@@ -259,13 +261,33 @@ function sendHistory(keyword) {
 }
 
 function clearHistory() {
-  var sdparams = {
+  var sndParams = {
     noitem: 'nothing'
   };
-  $.get('/clear', sdparams, function(data){
+  $.get('/clear', sndParams, function(data){
     $("#history > ul").empty();
   });
 }
+
+function createPlaylist()
+{
+  var keyword = window.prompt("Enter new playlist name:");
+  var sndParams = {
+    key: keyword
+  };
+  $("<div/>").addClass("result")
+  .append("strinnngg")
+  .appendTo("#playlists");
+  $.get('/createTable', sndParams, function(data){
+    for(var i in data.playlists) {
+      $("<div/>").addClass("result")
+      .append(data.playlists[i])
+      .appendTo("#playlists");
+      console.log(data.playlists[i]);
+    }
+  });
+}
+
 // socket.ioでサーバーと接続
 var socket = io.connect("/");
 //-->

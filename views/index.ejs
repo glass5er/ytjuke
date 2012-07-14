@@ -6,64 +6,83 @@
         <ul class="nav secondary-nav">
           <li><a href="javascript:mute();"><span id="mute">Sound OFF</span></a></li>
         </ul>
-        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="container">
-    <div class="hero-unit">
-      <h2><span id="video_title">no title</span></h2>
-      <form id="frmSearch">
-        <input type="text" id="keyword" size="35">
-        <input type="submit" value="set keyword">
-      </form>
-      <div id="ytapiplayer1">
-        You need Flash player 8+ and JavaScript enabled to view this video.
-      </div>
+<div class="container">
+  <div class="hero-unit">
+    <h2><span id="video_title">no title</span></h2>
+    <div id="ytapiplayer1">
+      You need Flash player 8+ and JavaScript enabled to view this video.
     </div>
   </div>
+</div>
 
-  <div id="view">
-    <!-- ヘッダ -->
-    <div class="header">
+<div id="search">
+  <h3 class="caption">Enter Keyword:</h3>
+  <form id="frmSearch">
+    <input type="text" id="keyword" size="35">
+    <input type="submit" value="set keyword">
+  </form>
+  <div class="header">
     <h3 class="caption">Search Result:</h3>
+  </div>
 
-    <!-- サムネイル -->
-    <div id="videos"></div>
+  <!-- サムネイル -->
+  <div id="videos"></div>
 
-    <!-- フッタ -->
-    <div id="footer">
+  <!-- フッタ -->
+  <div id="footer">
     <div id="result"></div>
     <div id="navi">
-    <a id="back">prev</a>　
-    <a id="next">next</a>
-    </div>
+      <a id="back">prev</a>
+      <a id="next">next</a>
     </div>
   </div>
+</div>
+
+<div id="listManager">
+  <div class="header">
+    <h3 class="caption">Play Lists:</h3>
+    <div id="listNavi">
+      <a id="createList">create</a>
+    </div>
+  </div>
+  <div id="playlists">
+    <ul></ul>
+  </div>
+</div>
+
+<div id="songManager">
+  <div class="header">
+    <h3 class="caption">Songs:</h3>
+  </div>
+  <div id="songs"></div>
+</div>
 
 <!-- 検索履歴 -->
 <div id="history">
-<!-- ヘッダ -->
-<div class="header">
-<h3 class="caption">History:</h3>
-<div class="submenu"><a id="clear">clear history</a></div>
-</div>
-
-<!-- 履歴リスト -->
-<ul></ul>
+  <!-- ヘッダ -->
+  <div class="header">
+    <h3 class="caption">History:</h3>
+    <div class="submenu"><a id="clear">clear history</a></div>
+  </div>
+  <!-- 履歴リスト -->
+  <ul></ul>
 </div>
 
 
 <!-- Player -->
 <script type="text/javascript">
-<!--
-var params = { allowScriptAccess: "always" };
-var atts = { id: "myytplayer1" };
-var cur_id = "<%= video_id %>";
-var url = "http://www.youtube.com/v/" + cur_id + "?enablejsapi=1&playerapiid=ytplayer1&rel=0";
-//var url = "http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=ytplayer1&rel=0";
-swfobject.embedSWF(url, "ytapiplayer1", "480", "25", "8", null, null, params, atts);
-//-->
+  <!--
+  var params = { allowScriptAccess: "always" };
+  var atts = { id: "myytplayer1" };
+  var cur_id = "<%= video_id %>";
+  var url = "http://www.youtube.com/v/" + cur_id + "?enablejsapi=1&playerapiid=ytplayer1&rel=0";
+  //var url = "http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=ytplayer1&rel=0";
+  swfobject.embedSWF(url, "ytapiplayer1", "480", "25", "8", null, null, params, atts);
+  //-->
 </script>
 
