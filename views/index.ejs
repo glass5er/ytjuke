@@ -20,28 +20,44 @@
   </div>
 </div>
 
-<div id="search">
-  <h3 class="caption">Enter Keyword:</h3>
-  <form id="frmSearch">
-    <input type="text" id="keyword" size="35">
-    <input type="submit" value="set keyword">
-  </form>
-  <div class="header">
-    <h3 class="caption">Search Result:</h3>
-  </div>
+<div id="utilities">
+<div id="searchManager">
+  <div id="search">
+    <h3 class="caption">Enter Keyword:</h3>
+    <form id="frmSearch">
+      <input type="text" id="keyword" size="35">
+      <input type="submit" value="set keyword">
+    </form>
+    <div class="header">
+      <h3 class="caption">Search Result:</h3>
+    </div>
 
-  <!-- サムネイル -->
-  <div id="videos"></div>
+    <!-- サムネイル -->
+    <div id="videos">
+    </div>
 
-  <!-- フッタ -->
-  <div id="footer">
-    <div id="result"></div>
-    <div id="navi">
-      <a id="back">prev</a>
-      <a id="next">next</a>
+    <!-- フッタ -->
+    <div id="footer">
+      <div id="result"></div>
+      <div id="navi">
+        <a id="back">prev</a>
+        <a id="next">next</a>
+      </div>
     </div>
   </div>
+
+  <!-- 検索履歴 -->
+  <div id="history">
+    <!-- ヘッダ -->
+    <div class="header">
+      <h3 class="caption">History:</h3>
+      <div class="submenu"><a id="clear">clear history</a></div>
+    </div>
+    <!-- 履歴リスト -->
+    <ul></ul>
+  </div>
 </div>
+
 
 <div id="listManager">
   <div class="header">
@@ -61,17 +77,8 @@
   </div>
   <div id="songs"></div>
 </div>
-
-<!-- 検索履歴 -->
-<div id="history">
-  <!-- ヘッダ -->
-  <div class="header">
-    <h3 class="caption">History:</h3>
-    <div class="submenu"><a id="clear">clear history</a></div>
-  </div>
-  <!-- 履歴リスト -->
-  <ul></ul>
 </div>
+
 
 
 <!-- Player -->

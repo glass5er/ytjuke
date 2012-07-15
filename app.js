@@ -49,16 +49,12 @@ app.get('/', function(req, res){
 });
 
 //  receive request
-app.get('/createTable', function(req, res){
-  var queryTableName = req.query.key;
+app.get('/getTables', function(req,res) {
   var allTables = new Array();
   pg.connect(connectionString, function(err, client) {
-    //  create new table  //
-    client.query("create table if not exists ytp_" + queryTableName + "(yt_key char(7) PRIMARY KEY, title text)", function(err, result) {
-      if(err) { console.log(err); }
-    });
+    if(err) { console.log(err); }
     //  get all tables  //
-    client.query("select tablename from pg_tables where tablename like 'ytp_%'", function(err, result) {
+    client.query("select tablename from pg_tables where tablename like 'ytp@_%' escape '@'", function(err, result) {
       if(err) { console.log(err); }
       else {
         for(var i in result.rows) {
@@ -70,7 +66,6 @@ app.get('/createTable', function(req, res){
       done();
     });
   });
-
   var resParams;
   var done = function() {
     resParams = {
@@ -81,20 +76,64 @@ app.get('/createTable', function(req, res){
   };
 });
 
-app.get('/dropTable', function(req, res){
+app.get('/createTable', function(req, res){
+  var queryTableName = req.query.key;
   pg.connect(connectionString, function(err, client) {
-    client.query("drop table if exists ytp_" + tableName, function(err, result) {
+    if(err) { console.log(err); }
+    //  create new table  //
+    client.query("create table if not exists ytp_" + queryTableName + "(yt_key char(7) PRIMARY KEY, title text)", function(err, result) {
+      if(err) { console.log(err); }
+      done();
     });
   });
-  res.send();
+  var done = function() {
+    res.send();
+  }
+});
+
+app.get('/dropTable', function(req, res){
+  var queryTableName = req.query.key;
+  pg.connect(connectionString, function(err, client) {
+    if(err) { console.log(err); }
+    //  delete table  //
+    client.query("drop table if exists ytp_" + queryTableName, function(err, result) {
+      if(err) { console.log(err); }
+      done();
+    });
+  });
+  var done = function() {
+    res.send();
+  }
 });
 
 app.get('/getElements', function(req, res){
+  var queryTableName = req.query.key;
+  var allElements = new Array();
   pg.connect(connectionString, function(err, client) {
-    client.query("select * from ytp_" + tableName, function(err, result) {
+    client.query("select * from ytp_" + queryTableName, function(err, result) {
+      if(err) { console.log(err); }
+      else {
+        for(var i in result.rows) {
+          var idStr = "" + result.rows[i].yt_key;
+          var titleStr = "" + result.rows[i].title;
+          console.log("get: " + idStr + " , " + titleStr);
+          allElements.push({
+            id: idStr,
+            title: titleStr
+          });
+        }
+      }
+      done();
     });
   });
-  res.send();
+  var resParams;
+  var done = function() {
+    resParams = {
+      songs: allElements
+    };
+    console.log("send parameters");
+    res.send(resParams);
+  };
 });
 
 app.get('/addElements', function(req, res){

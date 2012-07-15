@@ -1,5 +1,5 @@
 body {
-  padding: 50px 300px;
+  padding: 20px 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
@@ -11,6 +11,25 @@ a:hover {
   background: #bbbbbb;
 }
 
+#utilities{
+  width: 900px;
+}
+#searchManager {
+  width: 40%;
+  float: left;
+}
+#listManager {
+  width: 30%;
+  float: left;
+}
+#songManager {
+  width: 30%;
+  float: left;
+}
+
 .result:hover {
   background: #eeddff;
+}
+.selected {
+  background: #ddeeff;
 }
