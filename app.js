@@ -15,9 +15,9 @@ var pg = require('pg');
 var dbName = "ytplaydb";
 var baseTableName = "ytplaytable";
 
-var connectionString = "tcp://pgsqladmin:sqladmin@127.0.0.1:5432/" + dbName;
+var connectionString = process.env.DATABASE_URL || ("tcp://pgsqladmin:sqladmin@127.0.0.1:5432/" + dbName);
 pg.connect(connectionString, function(err, client) {
-  client.query("SELECT tablename from pg_tables where tablename like '" + baseTableName + "'", function(err, result) {
+  client.query("SELECT tablename from pg_tables where tablename = '" + baseTableName + "'", function(err, result) {
     console.log("Row count: " + result.rows.length);
   });
 });
@@ -43,8 +43,8 @@ app.configure('production', function(){
 //  Routes
 app.get('/', function(req, res){
   res.render('index', {
-    title: 'YouTube Auto Playlist',
-    video_id: 'RMfApWLG-OQ'
+    title: 'YTJuke',
+    video_id: 'MYqT3SOtQro'
   });
 });
 
@@ -81,7 +81,7 @@ app.get('/createTable', function(req, res){
   pg.connect(connectionString, function(err, client) {
     if(err) { console.log(err); }
     //  create new table  //
-    client.query("create table if not exists ytp_" + queryTableName + "(yt_key char(7) PRIMARY KEY, title text)", function(err, result) {
+    client.query("create table if not exists ytp_" + queryTableName + "(yt_key char(11) PRIMARY KEY, title text)", function(err, result) {
       if(err) { console.log(err); }
       done();
     });
@@ -137,11 +137,36 @@ app.get('/getElements', function(req, res){
 });
 
 app.get('/addElements', function(req, res){
+  var queryTableName = req.query.playlist;
+  var yt_key = req.query.yt_key;
+  var title = req.query.title;
+  console.log("addElements : title = " + title);
   pg.connect(connectionString, function(err, client) {
-    client.query("insert into ytp_" + tableName + "(yt_key) values " , function(err, result) {
+    if(err) { console.log(err); }
+    client.query("insert into ytp_" + queryTableName + "(yt_key, title) values ('" + yt_key + "', '" + title +"')" , function(err, result) {
+      if(err) { console.log(err); }
+      done();
     });
   });
-  res.send();
+  var done = function() {
+    res.send();
+  }
+});
+
+app.get('/deleteElements', function(req, res){
+  var queryTableName = req.query.playlist;
+  var yt_key = req.query.yt_key;
+  console.log("deleteElements : yt_key = " + yt_key);
+  pg.connect(connectionString, function(err, client) {
+    if(err) { console.log(err); }
+    client.query("delete from ytp_" + queryTableName + " where yt_key = '" + yt_key + "'" , function(err, result) {
+      if(err) { console.log(err); }
+      done();
+    });
+  });
+  var done = function() {
+    res.send();
+  }
 });
 
 app.get('/history', function(req, res){

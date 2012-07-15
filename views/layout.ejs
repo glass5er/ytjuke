@@ -24,11 +24,22 @@
 <!--
 var ytplayer = undefined;
 var video_id = "<%= video_id %>";
+var video_title = "sample";
 
 var searchCond = {}; // 検索条件
-var VIEW_COUNT = 10;  // 画面に表示する件数
-var idList = new Array();
-var titleList = new Array();
+var searchCount = 10;  // 画面に表示する件数
+
+//  song list (search result, play list)  //
+var idSrchList = new Array();
+var idPlayList  = new Array();
+var titleSrchList = new Array();
+var titlePlayList  = new Array();
+
+var isSearchResult = true;
+var idList = idSrchList;
+var titleList = titleSrchList;
+var listNum = searchCount;
+
 var list_index = 0;  // 画面に表示する件数
 
 
@@ -71,7 +82,7 @@ function onytplayerStateChange(newState) {
   console.log("Player's new state: " + newState);
   if (newState == 0) {
     if (ytplayer) {
-      if(list_index < VIEW_COUNT-1) {
+      if(list_index < listNum - 1) {
         videoUpdate(list_index+1);
       }
     }
@@ -81,44 +92,78 @@ function onytplayerStateChange(newState) {
 
 // --- 初期化 ---
 $(function(){
-    // --- イベントハンドラ ---
-    // 検索
-    $("#frmSearch").submit(function(){
-      searchNew({"keyword": $("#keyword").val()});
-      $("#keyword").select();
-      return false;
-      });
+  // --- イベントハンドラ ---
+  // 検索
+  $("#frmSearch").submit(function(){
+    searchNew({"keyword": $("#keyword").val()});
+    $("#keyword").select();
+    return false;
+  });
 
-    // 前へ
-    $("#back").click(function(){
-      if (searchCond.page <= 1) return;
-      searchHistory({"page": searchCond.page-1});
-      });
+  // 前へ
+  $("#back").click(function(){
+    if (searchCond.page <= 1) return;
+    searchHistory({"page": searchCond.page-1});
+  });
 
-    // 次へ
-    $("#next").click(function(){
-        if (searchCond.page*VIEW_COUNT+1 > searchCond.total) return;
-        searchHistory({"page": searchCond.page+1});
-        });
+  // 次へ
+  $("#next").click(function(){
+    if (searchCond.page*searchCount+1 > searchCond.total) return;
+    searchHistory({"page": searchCond.page+1});
+  });
 
-    $("#createList").click(function(){
-      createPlaylist();
-    });
+  $("#createList").click(function(){
+    createPlaylist();
+  });
 
-    // クリア
-    $("#clear").click(function(){
-        clearHistory();
-        $("#history > ul").empty();
-        $("#videos").empty();
-        $("#result").empty();
-        });
+  $("#deleteList").click(function(){
+    deletePlaylist();
+  });
 
-    getAllPlaylists();
-    sendHistory('');
-    // --- 初期処理 ---
-    // 検索テキストボックスをフォーカス
-    $("#keyword").focus();
+  $("#addSong").click(function(){
+    addSong();
+  });
+
+  $("#addSong2").click(function(){
+    addSong();
+  });
+
+  $("#deleteSong").click(function(){
+    deleteSong();
+  });
+
+  // クリア
+  $("#clear").click(function(){
+    clearHistory();
+    $("#history > ul").empty();
+    $("#videos").empty();
+    $("#result").empty();
+  });
+
+  getPlaylists();
+  sendHistory('');
+  // --- 初期処理 ---
+  // 検索テキストボックスをフォーカス
+  $("#keyword").focus();
 });
+
+//  --  searchResult <-> playList  --
+function switchList(toSearchResult)
+{
+  var prevIsSearchResult = isSearchResult;
+  isSearchResult = toSearchResult;
+  if(isSearchResult == true) {  //
+    listNum = searchCount;
+    idList = idSrchList;
+    titleList = titleSrchList;
+  } else {
+    listNum = idPlayList.length;
+    idList = idPlayList;
+    titleList = titlePlayList;
+  }
+  var isSwitched = (prevIsSearchResult != isSearchResult);
+  return isSwitched;
+}
 
 function videoUpdate(index)
 {
@@ -133,11 +178,11 @@ function videoUpdate(index)
 // --- 新規検索 ---
 function searchNew(cond) {
   search({
-      "keyword": cond.keyword,
-      "page": 1,
-      "orderby": "viewCount",
-      "fromHistory": false
-      });
+    "keyword": cond.keyword,
+    "page": 1,
+    "orderby": "viewCount",
+    "fromHistory": false
+  });
 }
 
 // --- 履歴検索 ---
@@ -148,10 +193,9 @@ function searchHistory(cond) {
 
 // --- 検索 ---
 function search(cond) {
-  delete idList;
-  delete tileList;
-  idList = new Array();
-  titleList = new Array();
+  //  clear array  //
+  idSrchList.length = 0;
+  titleSrchList.length = 0;
   // 検索条件の検査
   if (cond == null) return;
   if (cond.keyword == null || cond.keyword.length == 0) {
@@ -160,7 +204,7 @@ function search(cond) {
   }
 
   // 検索取得開始インデックス
-  var index = (cond.page-1)*VIEW_COUNT+1;
+  var index = (cond.page-1)*searchCount+1;
 
   // 検索条件の保存
   $.extend(searchCond, cond);
@@ -175,7 +219,8 @@ function search(cond) {
       "vq": cond.keyword,
       "orderby": cond.orderby,
       "start-index": index,
-      "max-results": VIEW_COUNT,
+      "max-results": searchCount,
+      "category": "Music",
       "alt":"json-in-script"
     },
     cache: true,
@@ -202,14 +247,18 @@ function search(cond) {
         .append(item.title.$t)
         .append($("<span/>").addClass("info").html("<br>&emsp;ViewCount:" + ((item.yt$statistics == null) ? "0" : item.yt$statistics.viewCount)))
         .click(function(){
+          $("#videos > .selected").removeClass("selected");
+          $(this).addClass("selected");
+          switchList(true);
           videoUpdate(i);
         })
         .appendTo("#videos");
-        idList.push(item.id.$t.slice(-11));
-        titleList.push(item.title.$t);
+        idSrchList.push(item.id.$t.slice(-11));
+        titleSrchList.push(item.title.$t);
       });
 
       //  play with keyword  //
+      switchList(true);
       videoUpdate(0);
 
       // 検索履歴に追加
@@ -226,7 +275,7 @@ function showTotal(index, total) {
   $("#result").text(
       ((total == 0) ? 0 : index)
       + " - "
-      + (index+VIEW_COUNT > total ? total : index+VIEW_COUNT-1)
+      + (index+searchCount > total ? total : index+searchCount-1)
       + " / "
       + total
       + "件"
@@ -269,25 +318,24 @@ function clearHistory() {
   });
 }
 
-function getAllPlaylists()
+function getPlaylists()
 {
   var sndParams = {
   };
   $("#playlists").empty();
   $.get('/getTables', sndParams, function(data){
     for(var i in data.playlists) {
-      var list = $("<div/>")
+      $("<li/>")
       .addClass("result")
       .append(data.playlists[i])
       .click(function(){
-        var listName = $(this).text();
-        console.log("get songs from " + listName);
         $("#playlists > .selected").removeClass("selected");
         $(this).addClass("selected");
-        getSongs(listName);
-      });
-      list.appendTo("#playlists");
-      console.log(data.playlists[i]);
+        getSongs();
+        console.log("getPlaylists : selected = " + $(this).text());
+      })
+      .appendTo("#playlists");
+      console.log("getPlaylists : push = " + data.playlists[i]);
     }
   });
 }
@@ -306,38 +354,112 @@ function createPlaylist()
     done();
   });
   var done = function() {
-    getAllPlaylists();
+    getPlaylists();
   };
 }
 
-function deletePlaylist(listName)
+function deletePlaylist()
 {
+  var targetList = $("#playlists > .selected");
+  console.log(targetList);
+  if(targetList.length == 0) {
+    alert("no playlist selected");
+  }
+  var listName = targetList.text();
   var sndParams = {
     key: listName
   };
   $.get('/dropTable', sndParams, function(data){
+    $("#songs").empty();
     done();
   });
   var done = function() {
-    getAllPlaylists();
+    getPlaylists();
   };
 }
 
-function getSongs(listName)
+//  --  songs  --
+function getSongs()
 {
+  var targetList = $("#playlists > .selected");
+  console.log(targetList);
+  if(targetList.length == 0) {
+    alert("no playlist selected");
+  }
+  var listName = targetList.text();
   var sndParams = {
     key: listName
   };
   $("#songs").empty();
+  //  clear array  //
+  idPlayList.length = 0;
+  titlePlayList.length = 0;
   $.get('/getElements', sndParams, function(data){
     console.log("data len : " + data.songs.length);
     for(var i in data.songs) {
-      $("<div/>").addClass("result")
-      .append(data.songs[i].id + " : " + data.songs[i].title)
+      $("<li/>")
+      .addClass("result")
+      .attr("yt_key", data.songs[i].id)
+      .append(data.songs[i].title)
+      .click(function(){
+        $("#songs > .selected").removeClass("selected");
+        $(this).addClass("selected");
+        switchList(false);
+        videoUpdate($("#songs > li").index(this));
+      })
       .appendTo("#songs");
-      console.log(data.songs[i].title);
+      idPlayList.push(data.songs[i].id);
+      titlePlayList.push(data.songs[i].title);
     }
+    console.log("getSongs : titlePlayList = " + titlePlayList);
   });
+}
+
+function addSong()
+{
+  var targetList = $("#playlists > .selected");
+  console.log("addsong(target) = " + targetList);
+  if(targetList.length == 0) {
+    alert("no playlist selected");
+    return;
+  }
+  var listName = targetList.text();
+  console.log("def : add songs to " + listName);
+  var sndParams = {
+    playlist: listName,
+    yt_key: "" + video_id,
+    title: "" + video_title
+  };
+  console.log("addSong : sndParam = " + sndParams);
+  $.get('/addElements', sndParams, function(data){
+    done();
+  });
+  var done = function() {
+    getSongs();
+  };
+}
+
+function deleteSong()
+{
+  var targetList = $("#playlists > .selected");
+  console.log("deleteSong : target = " + targetList);
+  if(targetList.length == 0) {
+    alert("no playlist selected");
+    return;
+  }
+  var listName = targetList.text();
+  console.log("def : delete songs from " + listName);
+  var sndParams = {
+    playlist: listName,
+    yt_key: "" + video_id,
+  };
+  console.log(sndParams);
+  $.get('/deleteElements', sndParams, function(data){
+    done();
+  });
+  var done = function() {
+    getSongs();
+  };
 }
 
 // socket.ioでサーバーと接続
