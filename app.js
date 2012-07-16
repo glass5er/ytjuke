@@ -44,6 +44,7 @@ app.configure('production', function(){
 app.get('/', function(req, res){
   res.render('index', {
     title: 'YTJuke',
+    video_title: 'sample: Mickey Mouse March',
     video_id: 'MYqT3SOtQro'
   });
 });

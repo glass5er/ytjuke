@@ -1,91 +1,102 @@
-<div class="topbar">
-  <div class="topbar-inner">
-    <div class="fill">
-      <div class="container">
-        <h3><a href="#"><%= title %></a></h3>
-        <ul class="nav secondary-nav">
-          <li><a href="javascript:mute();"><span id="mute">Sound OFF</span></a></li>
-        </ul>
-      </div>
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a href="#" class="brand"><%= title %></a>
+      <ul class="nav secondary-nav pull-right">
+        <li><a href="javascript:mute();"><span id="mute">Sound OFF</span></a></li>
+        <li><a href="javascript:mute();"><span id="mute">-</span></a></li>
+        <li><a href="javascript:mute();"><span id="mute">+</span></a></li>
+      </ul>
     </div>
   </div>
 </div>
 
-<div class="container">
-  <div class="hero-unit">
-    <h2><span id="video_title">no title</span></h2>
+<div class="container center">
+  <div class="hero-unit span10">
+    <h2><span id="video_title"><%= video_title %></span></h2>
     <div id="ytapiplayer1">
       You need Flash player 8+ and JavaScript enabled to view this video.
     </div>
     <br/>
-    <h3><a id="addSong">add to playlist</a></h3>
+    <h3><a id="addSong" class="btn btn-primary btn-large">add to playlist</a></h3>
   </div>
 </div>
 
-<div id="utilities">
-<div id="searchManager">
-  <div id="search">
+<div id="utilities" class="row-fluid container">
+  <div id="searchManager" class="span4">
+    <!-- Form -->
     <h3 class="caption">Enter Keyword:</h3>
     <form id="frmSearch">
       <input type="text" id="keyword" size="35">
-      <input type="submit" value="set keyword">
+      <input type="submit" value="search" class="btn btn-primary">
     </form>
+
+    <hr>
+
+    <!-- Search Results -->
     <div class="header">
       <h3 class="caption">Search Result:</h3>
     </div>
+    <ul id="videos" class="nav"></ul>
 
-    <!-- サムネイル -->
-    <div id="videos">
-    </div>
-
-    <!-- フッタ -->
+    <!-- Navigation Buttons -->
     <div id="footer">
       <div id="result"></div>
       <div id="navi">
-        <a id="back">prev</a>
-        <a id="next">next</a>
+        <div class="btn-group">
+          <a id="back" class="btn">prev</a>
+          <a id="next" class="btn">next</a>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- 検索履歴 -->
-  <div id="history">
-    <!-- ヘッダ -->
+    <hr>
+
+    <!-- Histories -->
+    <div id="history">
+      <div class="header">
+        <h3 class="caption">History:</h3>
+        <div class="submenu">
+          <a id="clear" class="btn">clear history</a>
+        </div>
+      </div>
+      <ul class="nav"></ul>
+    </div>
+
+  </div><!-- searchManager -->
+
+  <div class="divider-vertical"></div>
+
+  <div id="listManager" class="span3">
     <div class="header">
-      <h3 class="caption">History:</h3>
-      <div class="submenu"><a id="clear">clear history</a></div>
+      <h3 class="caption">Play Lists:</h3>
+      <div id="listNavi">
+        <div class="btn-group">
+          <a id="createList" class="btn">create</a>
+          <a id="deleteList" class="btn">delete</a>
+        </div>
+      </div>
     </div>
-    <!-- 履歴リスト -->
-    <ul></ul>
+    <!-- Playlists -->
+    <hr>
+    <ul id="playlists" class="nav"></ul>
   </div>
-</div>
 
-
-<div id="listManager">
-  <div class="header">
-    <h3 class="caption">Play Lists:</h3>
-    <div id="listNavi">
-      <a id="createList">create</a>
-      &emsp;
-      <a id="deleteList">delete</a>
+  <div id="songManager" class="span3">
+    <div class="header">
+      <h3 class="caption">Songs:</h3>
+      <div id="songNavi">
+        <div class="btn-group">
+          <a id="addSong2" class="btn">add</a>
+          <a id="deleteSong" class="btn">delete</a>
+        </div>
+      </div>
     </div>
+    <!-- Songs -->
+    <hr>
+    <ul id="songs" class="nav"></ul>
   </div>
-  <div id="playlists">
-    <ul></ul>
-  </div>
-</div>
 
-<div id="songManager">
-  <div class="header">
-    <h3 class="caption">Songs:</h3>
-    <div id="songNavi">
-      <a id="addSong2">add</a>
-      &emsp;
-      <a id="deleteSong">delete</a>
-    </div>
-  </div>
-  <div id="songs"></div>
-</div>
 </div>
 
 
@@ -94,11 +105,11 @@
 <script type="text/javascript">
   <!--
   var params = { allowScriptAccess: "always" };
-  var atts = { id: "myytplayer1" };
-  var cur_id = "<%= video_id %>";
-  var url = "http://www.youtube.com/v/" + cur_id + "?enablejsapi=1&playerapiid=ytplayer1&rel=0";
-  //var url = "http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=ytplayer1&rel=0";
-  swfobject.embedSWF(url, "ytapiplayer1", "480", "25", "8", null, null, params, atts);
-  //-->
+var atts = { id: "myytplayer1" };
+var cur_id = "<%= video_id %>";
+var url = "http://www.youtube.com/v/" + cur_id + "?enablejsapi=1&playerapiid=ytplayer1&rel=0";
+//var url = "http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=ytplayer1&rel=0";
+swfobject.embedSWF(url, "ytapiplayer1", "600", "25", "8", null, null, params, atts);
+//-->
 </script>
 

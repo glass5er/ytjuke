@@ -1,35 +1,18 @@
-body {
-  padding: 20px 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
-
-a {
-  color: #0040CC;
-}
-a:hover {
-  color: #0040CC;
-  background: #bbbbbb;
-}
-
-#utilities{
-  width: 900px;
-}
-#searchManager {
-  width: 40%;
-  float: left;
-}
-#listManager {
-  width: 30%;
-  float: left;
-}
-#songManager {
-  width: 30%;
-  float: left;
+#utilities {
+  margin-left:  10%;
+  margin-right: 10%;
 }
 
 .result:hover {
-  background: #eeddff;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  background: #eeeeee;
 }
-.selected {
-  background: #ddeeff;
+.selected, .selected:hover {
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  color: #ffffff;
+  background: #0077dd;
 }

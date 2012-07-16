@@ -9,17 +9,17 @@
 <![endif]-->
 
 <!-- Le styles -->
-<link href="/stylesheets/bootstrap-1.2.0.min.css" rel="stylesheet">
-<link rel='stylesheet' href='/stylesheets/style.css' />
+<link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+<link href="/stylesheets/style.css" rel="stylesheet">
 
 <!-- JavaScript -->    
-<script src="/socket.io/socket.io.js"></script>
 <script src="http://www.google.com/jsapi"></script>
 <script>
   google.load("swfobject", "2.1");
   google.load("jquery", "1");
 </script>
-
+<script src="/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 <!--
 var ytplayer = undefined;
@@ -243,9 +243,14 @@ function search(cond) {
       $.each(data.feed.entry, function(i,item){
         var group = item.media$group;
         var cur_id = item.id.$t.slice(-11);
-        $("<li/>").addClass("result")
+        $("<li/>")
+        .addClass("result")
+        .append("<i class='icon-music'/>")
         .append(item.title.$t)
-        .append($("<span/>").addClass("info").html("<br>&emsp;ViewCount:" + ((item.yt$statistics == null) ? "0" : item.yt$statistics.viewCount)))
+        .append(
+          $("<span/>")
+          .addClass("info")
+          .html("<br>&emsp;ViewCount:" + ((item.yt$statistics == null) ? "0" : item.yt$statistics.viewCount)))
         .click(function(){
           $("#videos > .selected").removeClass("selected");
           $(this).addClass("selected");
@@ -295,7 +300,7 @@ function sendHistory(keyword) {
 
     for(var i in data.hists) {
     $("<li/>")
-    //.append(img).append("<br/>")
+    .append("<i class='icon-book'/>")
     .append($("<span/>").addClass("key").append(data.hists[i]))
     .click(function(){
       searchHistory({
@@ -327,6 +332,7 @@ function getPlaylists()
     for(var i in data.playlists) {
       $("<li/>")
       .addClass("result")
+      .append("<i class='icon-heart'/>")
       .append(data.playlists[i])
       .click(function(){
         $("#playlists > .selected").removeClass("selected");
@@ -400,6 +406,7 @@ function getSongs()
       $("<li/>")
       .addClass("result")
       .attr("yt_key", data.songs[i].id)
+      .append("<i class='icon-music'>")
       .append(data.songs[i].title)
       .click(function(){
         $("#songs > .selected").removeClass("selected");
@@ -462,8 +469,6 @@ function deleteSong()
   };
 }
 
-// socket.ioでサーバーと接続
-var socket = io.connect("/");
 //-->
 
 
