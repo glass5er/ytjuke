@@ -25,6 +25,7 @@
 var ytplayer = undefined;
 var video_id = "<%= video_id %>";
 var video_title = "sample";
+var soundVolume = 50;
 
 var searchCond = {}; // 検索条件
 var searchCount = 10;  // 画面に表示する件数
@@ -60,7 +61,7 @@ function onYouTubePlayerReady(playerId) {
 function play() {
   if (ytplayer) {
     ytplayer.playVideo();
-    ytplayer.setVolume(50);
+    ytplayer.setVolume(soundVolume);
   }
 }
 
@@ -74,6 +75,14 @@ function mute() {
       ytplayer.mute();
       $("#mute").html("Sound ON");
     }
+  }
+}
+
+function changeVolume(offset) {
+  soundVolume += offset;
+  soundVolume = Math.max(0, Math.min(soundVolume,100) );
+  if (ytplayer) {
+    ytplayer.setVolume(soundVolume);
   }
 }
 
