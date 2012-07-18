@@ -179,7 +179,7 @@ function videoUpdate(index)
   list_index = index;
   video_id = idList[index];
   video_title = titleList[index];
-  $("#video_title").html(video_title);
+  $("#video_title").html("<span style='white-space:nowrap'>" + video_title + "</span>");
   ytplayer.loadVideoById(video_id);
   play();
 }
@@ -272,8 +272,8 @@ function search(cond) {
       });
 
       //  play with keyword  //
-      switchList(true);
-      videoUpdate(0);
+      //switchList(true);
+      //videoUpdate(0);
 
       // 検索履歴に追加
       if (!cond.fromHistory) {
@@ -303,8 +303,6 @@ function sendHistory(keyword) {
   };
   $.get('/history', sndParams, function(data){
     console.log("response data = " + data);
-    //var newkey = data.hists[0];
-    //$("#video_title").html(keyword);
     $("#history > ul").empty();
 
     for(var i in data.hists) {
