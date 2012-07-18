@@ -82,7 +82,7 @@ app.get('/createTable', function(req, res){
   pg.connect(connectionString, function(err, client) {
     if(err) { console.log(err); }
     //  create new table  //
-    client.query("create table if not exists ytp_" + queryTableName + "(yt_key char(11) PRIMARY KEY, title text)", function(err, result) {
+    client.query("create table ytp_" + queryTableName + "(yt_key char(11) PRIMARY KEY, title text)", function(err, result) {
       if(err) { console.log(err); }
       done();
     });
@@ -97,7 +97,7 @@ app.get('/dropTable', function(req, res){
   pg.connect(connectionString, function(err, client) {
     if(err) { console.log(err); }
     //  delete table  //
-    client.query("drop table if exists ytp_" + queryTableName, function(err, result) {
+    client.query("drop table ytp_" + queryTableName, function(err, result) {
       if(err) { console.log(err); }
       done();
     });
