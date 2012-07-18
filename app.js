@@ -15,7 +15,7 @@ var pg = require('pg');
 var dbName = "ytplaydb";
 var baseTableName = "ytplaytable";
 
-var connectionString = process.env.DATABASE_URL || ("tcp://pgsqladmin:sqladmin@127.0.0.1:5432/" + dbName);
+var connectionString = process.env.SHARED_DATABASE_URL || ("tcp://pgsqladmin:sqladmin@127.0.0.1:5432/" + dbName);
 pg.connect(connectionString, function(err, client) {
   client.query("SELECT tablename from pg_tables where tablename = '" + baseTableName + "'", function(err, result) {
     console.log("Row count: " + result.rows.length);
